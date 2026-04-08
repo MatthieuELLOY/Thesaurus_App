@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script de build pour macOS — génère un exécutable autonome
+# Script de build pour macOS — génère un .app double-cliquable
 # À exécuter sur une machine macOS avec Python 3.10+
 
 set -e
@@ -19,9 +19,9 @@ pip install -r requirements.txt --quiet
 echo "==> Installation de PyInstaller..."
 pip install pyinstaller --quiet
 
-echo "==> Construction de l'exécutable..."
+echo "==> Construction du .app bundle..."
 pyinstaller \
-  --onefile \
+  --windowed \
   --name "$APP_NAME" \
   --add-data "index.html:." \
   --add-data "edit.html:." \
@@ -42,6 +42,9 @@ pyinstaller \
 
 echo ""
 echo "==> Build terminé !"
-echo "    Exécutable : dist/$APP_NAME"
-echo "    Lancer avec : ./dist/$APP_NAME"
-echo "    Puis ouvrir : http://localhost:8001"
+echo "    Application : dist/$APP_NAME.app"
+echo "    Double-cliquez sur dist/$APP_NAME.app pour lancer."
+echo "    Le navigateur s'ouvrira automatiquement sur http://localhost:8001"
+echo ""
+echo "    Les données sont stockées dans ~/Documents/ThesaurusMedical/data/"
+echo "    (créé automatiquement au premier lancement)"

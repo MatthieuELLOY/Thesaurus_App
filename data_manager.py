@@ -1,7 +1,24 @@
 import pandas as pd
 import os
+import sys
+import shutil
 
-DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
+
+def _get_data_dir():
+    if getattr(sys, 'frozen', False):
+        # App bundle: data must live in a writable user directory
+        user_data = os.path.expanduser("~/Documents/ThesaurusMedical/data")
+        if not os.path.exists(user_data):
+            # First launch: copy the bundled initial data to the user directory
+            bundled_data = os.path.join(sys._MEIPASS, "data")
+            os.makedirs(user_data, exist_ok=True)
+            for fname in os.listdir(bundled_data):
+                shutil.copy2(os.path.join(bundled_data, fname), os.path.join(user_data, fname))
+        return user_data
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
+
+
+DATA_DIR = _get_data_dir()
 
 CATEGORIES = {
     "anatomie":    {"file": "anatomie.csv",    "id_prefix": "ANAT",  "has_subcat": False},
