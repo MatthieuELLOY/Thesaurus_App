@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modifier — Thésaurus</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,500;1,300&family=DM+Mono:wght@400;500&family=Libre+Franklin:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f7f5f0; --surface: #fff; --border: #e2ddd6; --text: #1c1b18;
+  --muted: #6b6760; --light: #9e9b94; --accent: #2a4a3e;
+}
+body { font-family: 'Libre Franklin', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); height: 52px; display: flex; align-items: center; padding: 0 28px; gap: 16px; position: sticky; top: 0; z-index: 10; }
+.back { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); text-decoration: none; }
+.back:hover { color: var(--text); }
+.topbar-id { font-family: 'DM Mono', monospace; font-size: 12px; padding: 3px 9px; border-radius: 5px; }
+.topbar-title { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 300; flex: 1; }
+.btn { display: inline-flex; align-items: center; gap: 5px; padding: 7px 16px; border-radius: 6px; font-family: 'Libre Franklin', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.12s; }
+.btn-green  { background: var(--accent); color: #fff; }
+.btn-green:hover  { background: #1e3830; }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.btn-outline:hover { background: var(--bg); }
+.btn-red { background: #fdf0ee; color: #c0392b; border: 1px solid #f5c6c2; }
+.btn-red:hover { background: #fbe3e1; }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+
+.layout { display: grid; grid-template-columns: 380px 1fr; gap: 24px; padding: 24px 28px; max-width: 1200px; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: visible; }
+.card-head { padding: 14px 18px; border-bottom: 1px solid var(--border); background: var(--bg); border-radius: 10px 10px 0 0; }
+.card-head h3 { font-family: 'Fraunces', serif; font-size: 15px; font-weight: 300; }
+.card-body { padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+
+label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); display: block; margin-bottom: 5px; }
+input[type=text], input[type=search], textarea, select { width: 100%; padding: 8px 11px; border: 1.5px solid var(--border); border-radius: 6px; font-family: 'Libre Franklin', sans-serif; font-size: 13.5px; color: var(--text); outline: none; background: var(--surface); }
+input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+.valide-toggle { display: flex; align-items: center; gap: 10px; }
+.valide-toggle input[type=checkbox] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent); }
+.valide-toggle span { font-size: 13px; }
+
+/* Relations */
+.rel-section { border-bottom: 1px solid var(--border); }
+.rel-section:last-child { border-bottom: none; }
+.rel-title { padding: 11px 18px; display: flex; align-items: center; justify-content: space-between; background: var(--bg); }
+.rel-title span { font-size: 12px; font-weight: 600; color: var(--muted); }
+.rel-count { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--light); }
+.rel-list { }
+.rel-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 18px; border-bottom: 1px solid #f0ece6; }
+.rel-item:last-child { border-bottom: none; }
+.rel-item:hover { background: #faf9f6; }
+.rel-left { display: flex; align-items: center; gap: 8px; }
+.rel-pill { font-family: 'DM Mono', monospace; font-size: 10px; padding: 2px 7px; border-radius: 4px; flex-shrink: 0; }
+.rel-terme { font-size: 13px; color: var(--text); text-decoration: none; }
+.rel-terme:hover { text-decoration: underline; }
+.rel-empty { padding: 10px 18px; font-size: 12px; color: var(--light); font-style: italic; }
+.del-rel { background: none; border: none; color: var(--light); cursor: pointer; font-size: 15px; padding: 2px 6px; border-radius: 4px; }
+.del-rel:hover { background: #fdf0ee; color: #c0392b; }
+
+/* Autocomplete */
+.ac-wrap { position: relative; }
+.ac-input { width: 100%; padding: 7px 11px; border: 1.5px solid var(--border); border-radius: 6px; font-family: 'Libre Franklin', sans-serif; font-size: 13px; color: var(--text); outline: none; background: var(--surface); }
+.ac-input:focus { border-color: var(--accent); }
+.ac-dropdown { display: none; position: absolute; top: calc(100% + 3px); left: 0; right: 0; background: var(--surface); border: 1.5px solid var(--accent); border-radius: 7px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 50; max-height: 220px; overflow-y: auto; }
+.ac-dropdown.open { display: block; }
+.ac-item { padding: 9px 13px; cursor: pointer; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+.ac-item:last-child { border-bottom: none; }
+.ac-item:hover { background: var(--bg); }
+.ac-id { font-family: 'DM Mono', monospace; font-size: 10px; padding: 1px 6px; border-radius: 3px; flex-shrink: 0; }
+.ac-name { font-size: 13px; }
+.ac-none { padding: 10px 13px; font-size: 12px; color: var(--light); font-style: italic; }
+.add-rel-row { padding: 10px 18px; border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: flex-start; }
+.add-rel-row .ac-wrap { flex: 1; }
+
+.toast { position: fixed; bottom: 20px; right: 20px; background: #1c1b18; color: #fff; padding: 9px 16px; border-radius: 7px; font-size: 13px; font-family: 'DM Mono', monospace; opacity: 0; transform: translateY(6px); transition: all 0.2s; z-index: 500; pointer-events: none; }
+.toast.show { opacity: 1; transform: none; }
+.loading { padding: 20px; text-align: center; color: var(--light); font-family: 'DM Mono', monospace; font-size: 12px; }
+
+@media (max-width: 800px) { .layout { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="back" href="/">← Retour</a>
+  <span class="topbar-id" id="term-id-badge"></span>
+  <span class="topbar-title" id="term-name-title">—</span>
+  <button class="btn btn-green" onclick="save()">Enregistrer</button>
+</div>
+
+<div class="layout">
+  <div>
+    <div class="card">
+      <div class="card-head"><h3>Informations</h3></div>
+      <div class="card-body">
+        <div><label>Terme</label><input id="f-terme" type="text"></div>
+        <div><label>Synonymes <span style="font-weight:400;text-transform:none">(séparés par |)</span></label>
+          <textarea id="f-synonymes" style="min-height:55px"></textarea></div>
+        <div><label>Définition</label><textarea id="f-definition"></textarea></div>
+        <div id="subcat-group" style="display:none">
+          <label>Sous-catégorie</label>
+          <select id="f-sous_categorie">
+            <option value="traitement_pathologie">traitement_pathologie</option>
+            <option value="traitement_symptome">traitement_symptome</option>
+          </select>
+        </div>
+        <div>
+          <label>Statut</label>
+          <div class="valide-toggle">
+            <input type="checkbox" id="f-valide">
+            <span>Terme validé</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="card">
+      <div class="card-head"><h3>Relations</h3></div>
+      <div id="relations-area"><div class="loading">Chargement…</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CAT_COLORS = {
+  anatomie:'#1D6B56', pathologie:'#7B2D1E', symptome:'#7B2356',
+  examen:'#0C447C', traitement:'#27500A', dispositif:'#854F0B', medicament:'#6B21A8'
+};
+const CAT_BG = {
+  anatomie:'#e8f5f0', pathologie:'#fdf0ec', symptome:'#fdf0f6',
+  examen:'#ebf3fb', traitement:'#eaf3de', dispositif:'#fef3e2', medicament:'#f3e8ff'
+};
+const REL_LABELS = {
+  anatomie_pathologie:   'Anatomie ↔ Pathologies',
+  pathologie_symptome:   'Pathologies ↔ Symptômes',
+  pathologie_examen:     'Pathologies ↔ Examens',
+  pathologie_traitement: 'Pathologies ↔ Traitements',
+  traitement_dispositif: 'Traitements ↔ Dispositifs',
+  traitement_medicament: 'Traitements ↔ Médicaments',
+  symptome_medicament:   'Symptômes ↔ Médicaments',
+};
+const CAT_RELATIONS = {
+  anatomie:    ['anatomie_pathologie'],
+  pathologie:  ['anatomie_pathologie','pathologie_symptome','pathologie_examen','pathologie_traitement'],
+  symptome:    ['pathologie_symptome','symptome_medicament'],
+  examen:      ['pathologie_examen'],
+  traitement:  ['pathologie_traitement','traitement_dispositif','traitement_medicament'],
+  dispositif:  ['traitement_dispositif'],
+  medicament:  ['traitement_medicament','symptome_medicament'],
+};
+const REL_CONFIGS = {
+  anatomie_pathologie:   {cat_a:'anatomie',   cat_b:'pathologie'},
+  pathologie_symptome:   {cat_a:'pathologie', cat_b:'symptome'},
+  pathologie_examen:     {cat_a:'pathologie', cat_b:'examen'},
+  pathologie_traitement: {cat_a:'pathologie', cat_b:'traitement'},
+  traitement_dispositif: {cat_a:'traitement', cat_b:'dispositif'},
+  traitement_medicament: {cat_a:'traitement', cat_b:'medicament'},
+  symptome_medicament:   {cat_a:'symptome',   cat_b:'medicament'},
+};
+
+const [,, cat, rawId] = window.location.pathname.split('/');
+const termId = decodeURIComponent(rawId);
+
+const _termsCache = {};
+const _acSelected = {};
+
+async function init() {
+  const badge = document.getElementById('term-id-badge');
+  badge.textContent = termId;
+  badge.style.background = CAT_BG[cat] || '#eee';
+  badge.style.color = CAT_COLORS[cat] || '#333';
+
+  const term = await get(`/api/terms/${cat}/${encodeURIComponent(termId)}`);
+  if (!term || term.detail) {
+    document.body.innerHTML = '<p style="padding:40px;color:#c0392b">Terme introuvable</p>';
+    return;
+  }
+
+  document.getElementById('f-terme').value = term.terme || '';
+  document.getElementById('f-synonymes').value = term.synonymes || '';
+  document.getElementById('f-definition').value = term.definition || '';
+  document.getElementById('f-valide').checked = term.valide === '1' || term.valide === 'true';
+  document.getElementById('term-name-title').textContent = term.terme || '';
+
+  if (cat === 'traitement') {
+    document.getElementById('subcat-group').style.display = '';
+    document.getElementById('f-sous_categorie').value = term.sous_categorie || 'traitement_pathologie';
+  }
+
+  loadRelations();
+}
+
+async function loadRelations() {
+  const area = document.getElementById('relations-area');
+  const existing = await get(`/api/relations/${cat}/${encodeURIComponent(termId)}`);
+  const relNames = CAT_RELATIONS[cat] || [];
+  if (!relNames.length) {
+    area.innerHTML = '<div class="loading">Aucune relation disponible pour cette catégorie.</div>';
+    return;
+  }
+
+  area.innerHTML = relNames.map(relName => {
+    const cfg = REL_CONFIGS[relName];
+    const otherCat = cfg.cat_a === cat ? cfg.cat_b : cfg.cat_a;
+    const color = CAT_COLORS[otherCat] || '#888';
+    const bg    = CAT_BG[otherCat] || '#eee';
+    const data  = existing[relName];
+    const items = data ? data.items : [];
+
+    const itemsHtml = items.length
+      ? items.map(item => `
+          <div class="rel-item">
+            <div class="rel-left">
+              <span class="rel-pill" style="background:${bg};color:${color}">${item.id}</span>
+              <a href="/edit/${otherCat}/${encodeURIComponent(item.id)}" class="rel-terme">${item.terme}</a>
+            </div>
+            <button class="del-rel" onclick="deleteRel('${relName}','${item.id}')" title="Supprimer">✕</button>
+          </div>`).join('')
+      : '<div class="rel-empty">Aucun lien</div>';
+
+    return `<div class="rel-section">
+      <div class="rel-title">
+        <span>${REL_LABELS[relName] || relName}</span>
+        <span class="rel-count">${items.length}</span>
+      </div>
+      <div class="rel-list">${itemsHtml}</div>
+      <div class="add-rel-row">
+        <div class="ac-wrap">
+          <input class="ac-input" type="text"
+            id="ac-input-${relName}"
+            placeholder="Rechercher un ${otherCat}…"
+            autocomplete="off"
+            oninput="acSearch('${relName}','${otherCat}',this.value)"
+            onblur="setTimeout(()=>acClose('${relName}'),200)">
+          <div class="ac-dropdown" id="ac-drop-${relName}"></div>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="addRelFromAc('${relName}','${otherCat}')">+ Lier</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Autocomplete ──────────────────────────────────────────────────────────
+
+async function getTermsForCat(targetCat) {
+  if (!_termsCache[targetCat]) {
+    _termsCache[targetCat] = await get(`/api/terms/${targetCat}`);
+  }
+  return _termsCache[targetCat];
+}
+
+async function acSearch(relName, otherCat, q) {
+  const drop = document.getElementById(`ac-drop-${relName}`);
+  _acSelected[relName] = null;
+
+  if (q.length < 2) { drop.classList.remove('open'); return; }
+
+  const terms = await getTermsForCat(otherCat);
+  const ql = q.toLowerCase();
+  const results = terms
+    .filter(t => t.terme?.toLowerCase().includes(ql) || t.synonymes?.toLowerCase().includes(ql))
+    .slice(0, 8);
+
+  const color = CAT_COLORS[otherCat] || '#888';
+  const bg    = CAT_BG[otherCat] || '#eee';
+
+  if (!results.length) {
+    drop.innerHTML = '<div class="ac-none">Aucun résultat</div>';
+  } else {
+    drop.innerHTML = results.map(t => `
+      <div class="ac-item" onmousedown="acSelect('${relName}','${t.id}','${t.terme.replace(/'/g,"\\'")}')">
+        <span class="ac-id" style="background:${bg};color:${color}">${t.id}</span>
+        <span class="ac-name">${t.terme}</span>
+      </div>`).join('');
+  }
+  drop.classList.add('open');
+}
+
+function acSelect(relName, id, terme) {
+  _acSelected[relName] = { id, terme };
+  document.getElementById(`ac-input-${relName}`).value = terme;
+  acClose(relName);
+}
+
+function acClose(relName) {
+  const drop = document.getElementById(`ac-drop-${relName}`);
+  if (drop) drop.classList.remove('open');
+}
+
+async function addRelFromAc(relName, otherCat) {
+  const selected = _acSelected[relName];
+  if (!selected) {
+    const input = document.getElementById(`ac-input-${relName}`);
+    const q = input.value.trim();
+    if (!q) { toast('Tapez un terme à rechercher'); return; }
+    const terms = await getTermsForCat(otherCat);
+    const match = terms.find(t => t.terme.toLowerCase() === q.toLowerCase());
+    if (!match) { toast('Terme introuvable — sélectionnez dans la liste'); return; }
+    _acSelected[relName] = { id: match.id, terme: match.terme };
+  }
+
+  const otherId = _acSelected[relName].id;
+  const cfg = REL_CONFIGS[relName];
+  const id_a = cfg.cat_a === cat ? termId : otherId;
+  const id_b = cfg.cat_b === cat ? termId : otherId;
+
+  const r = await fetch('/api/relations', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ rel_name: relName, id_a, id_b })
+  });
+  if (!r.ok) {
+    const err = await r.json();
+    toast('⚠ ' + (err.detail || 'Erreur'));
+    return;
+  }
+  document.getElementById(`ac-input-${relName}`).value = '';
+  _acSelected[relName] = null;
+  toast('Lien ajouté ✓');
+  loadRelations();
+}
+
+async function deleteRel(relName, otherId) {
+  if (!confirm('Supprimer ce lien ?')) return;
+  const cfg = REL_CONFIGS[relName];
+  const id_a = cfg.cat_a === cat ? termId : otherId;
+  const id_b = cfg.cat_b === cat ? termId : otherId;
+  await fetch(`/api/relations/${relName}/${encodeURIComponent(id_a)}/${encodeURIComponent(id_b)}`, {method:'DELETE'});
+  toast('Lien supprimé');
+  loadRelations();
+}
+
+async function save() {
+  const data = {
+    terme:      document.getElementById('f-terme').value.trim(),
+    synonymes:  document.getElementById('f-synonymes').value.trim(),
+    definition: document.getElementById('f-definition').value.trim(),
+    valide:     document.getElementById('f-valide').checked ? '1' : '0',
+  };
+  if (cat === 'traitement') data.sous_categorie = document.getElementById('f-sous_categorie').value;
+  if (!data.terme) { toast('Le terme est requis'); return; }
+  await put(`/api/terms/${cat}/${encodeURIComponent(termId)}`, data);
+  document.getElementById('term-name-title').textContent = data.terme;
+  toast('Enregistré ✓');
+}
+
+async function get(url)        { const r = await fetch(url); return r.json(); }
+async function post(url, body) { const r = await fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)}); return r.json(); }
+async function put(url, body)  { const r = await fetch(url, {method:'PUT',  headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)}); return r.json(); }
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+init();
+</script>
+</body>
+</html>
