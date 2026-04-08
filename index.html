@@ -26,7 +26,7 @@ body { font-family: 'Libre Franklin', sans-serif; background: var(--bg); color: 
 .nav-item.active { color: #fff; background: rgba(255,255,255,0.08); border-left-color: #5DCAA5; }
 .nav-item .n { font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.3); }
 .nav-item.active .n { color: rgba(255,255,255,0.6); }
-.btn-quit { display: flex; align-items: center; gap: 8px; padding: 10px 16px; cursor: pointer; font-size: 13px; color: rgba(255,255,255,0.35); background: none; border: none; width: 100%; text-align: left; font-family: 'Libre Franklin', sans-serif; transition: all 0.12s; border-top: 1px solid rgba(255,255,255,0.06); margin-top: auto; }
+.btn-quit { display: flex; align-items: center; gap: 8px; padding: 10px 16px; cursor: pointer; font-size: 13px; color: rgba(255,255,255,0.35); background: none; border: none; width: 100%; text-align: left; font-family: 'Libre Franklin', sans-serif; transition: all 0.12s; border-bottom: 1px solid rgba(255,255,255,0.06); }
 .btn-quit:hover { color: #f87171; background: rgba(255,255,255,0.04); }
 
 /* Main */
@@ -91,9 +91,9 @@ textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
 <body>
 
 <nav class="sidebar">
+  <button class="btn-quit" onclick="quitApp()">⏻ Quitter</button>
   <div class="logo"><h1>Thésaurus<br><em>Éditeur</em></h1></div>
   <div class="nav" id="nav"></div>
-  <button class="btn-quit" onclick="quitApp()">⏻ Quitter</button>
 </nav>
 
 <div class="main">

@@ -162,7 +162,7 @@ def add_term(cat, data):
     new_id = f"{prefix}_{str(next_n).zfill(3)}"
     data["id"] = new_id
     data.setdefault("valide", "0")
-    _terms[cat] = pd.concat([df, pd.DataFrame([data])], ignore_index=True)
+    _terms[cat] = pd.concat([df, pd.DataFrame([data])], ignore_index=True).fillna("")
     _save_csv(cat)
     return new_id, None
 

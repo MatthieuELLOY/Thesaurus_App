@@ -128,7 +128,7 @@ def categories():
 
 @app.post("/api/shutdown")
 def shutdown():
-    threading.Timer(0.5, lambda: os.kill(os.getpid(), signal.SIGINT)).start()
+    threading.Timer(0.5, lambda: os._exit(0)).start()
     return {"ok": True}
 
 @app.get("/api/search/{cat}")
