@@ -7,6 +7,8 @@ import os
 import sys
 import io
 import zipfile
+import signal
+import threading
 
 from data_manager import (
     get_all_terms, get_term, get_relations_for, get_all_relations,
@@ -123,6 +125,11 @@ def remove_relation(rel_name: str, id_a: str, id_b: str):
 @app.get("/api/categories")
 def categories():
     return list(CATEGORIES.keys())
+
+@app.post("/api/shutdown")
+def shutdown():
+    threading.Timer(0.5, lambda: os.kill(os.getpid(), signal.SIGINT)).start()
+    return {"ok": True}
 
 @app.get("/api/search/{cat}")
 def search(cat: str, q: str = ""):
